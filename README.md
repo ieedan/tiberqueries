@@ -1,4 +1,4 @@
-# tiberqueries (tie-beer-queer-rees)
+# tiberqueries (ti-beer-queer-rees)
 A lightweight ORM for [Tiberius](https://github.com/prisma/tiberius). 
 
 Implements includes derive functionality as well as a trait implementation for the Client. The goal is not to be a query builder and rather to just make mapping your types simple. 
