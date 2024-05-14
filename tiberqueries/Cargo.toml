@@ -1,0 +1,24 @@
+[package]
+name = "tiberqueries"
+version = "0.1.0"
+edition = "2021"
+authors = ["Aidan Bleser"]
+description = "Traits for tiberqueries"
+documentation = "https://github.com/ieedan/tiberqueries"
+keywords = ["derive", "tiberius"]
+license = "../LICENSE"
+readme = "../README.md"
+repository = "https://github.com/ieedan/tiberqueries"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tiberius = "0.12.2"
+tiberqueries_derive = { path = "../tiberqueries_derive", optional = true }
+
+[dev-dependencies]
+tiberqueries_derive = { path = "../tiberqueries_derive" }
+
+[features]
+default = ["derive"]
+derive = ["tiberqueries_derive"]
