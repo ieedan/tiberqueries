@@ -3,9 +3,9 @@ name = "tiberqueries"
 version = "0.1.0"
 edition = "2021"
 authors = ["Aidan Bleser"]
-description = "Traits for tiberqueries"
+description = "A lightweight ORM for Tiberius."
 documentation = "https://github.com/ieedan/tiberqueries"
-keywords = ["derive", "tiberius"]
+keywords = ["derive", "tiberius", "mssqlserver", "orm"]
 license = "../LICENSE"
 readme = "../README.md"
 repository = "https://github.com/ieedan/tiberqueries"
@@ -16,10 +16,10 @@ repository = "https://github.com/ieedan/tiberqueries"
 tiberius = { version = "0.12.2", features = ["chrono"] }
 tokio = { version = "^1.37.0", features = ["full"], optional = true }
 tokio-util = { version = "0.7.10", features = ["compat"], optional = true }
-tiberqueries_derive = { path = "../tiberqueries_derive", optional = true }
+tiberqueries_derive = {  version = "1.0", path = "../tiberqueries_derive", optional = true }
 
 [dev-dependencies]
-tiberqueries_derive = { path = "../tiberqueries_derive" }
+tiberqueries_derive = { version = "1.0", path = "../tiberqueries_derive" }
 
 [features]
 default = ["derive", "query"]
