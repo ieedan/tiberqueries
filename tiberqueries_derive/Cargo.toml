@@ -6,7 +6,7 @@ authors = ["Aidan Bleser"]
 description = "Derive implementation for trait FromRow"
 documentation = "https://github.com/ieedan/tiberqueries"
 keywords = ["derive", "tiberius"]
-license = "LICENSE"
+license = "MIT"
 readme = "README.md"
 repository = "https://github.com/ieedan/tiberqueries"
 
