@@ -86,18 +86,9 @@ fn expand_derive_from_row(input: syn::DeriveInput) -> syn::Result<proc_macro2::T
     }
 
     let gen = quote! {
-        // we put allow dead code in case there aren't any string types
-        #[allow(dead_code)]
-        fn string(str: Option<&str>) -> Option<String> {
-            if let Some(str) = str {
-                Some(String::from(str))
-            } else {
-                None
-            }
-        }
-
         impl FromRow for #name {
             fn from_row(row: tiberius::Row) -> Self {
+                use tiberqueries::string;
                 Self {
                     #(#field_strings)*
                 }
