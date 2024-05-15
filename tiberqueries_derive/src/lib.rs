@@ -1,3 +1,4 @@
+use heck::AsUpperCamelCase;
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::spanned::Spanned;
@@ -7,7 +8,7 @@ use syn::{
 };
 use syn::{DeriveInput, Type};
 
-#[proc_macro_derive(FromRow, attributes(sql_name))]
+#[proc_macro_derive(FromRow, attributes(sql_name, to_pascal))]
 pub fn derive_from_row(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     expand_derive_from_row(input)
@@ -28,11 +29,24 @@ fn expand_derive_from_row(input: syn::DeriveInput) -> syn::Result<proc_macro2::T
         }
     };
 
+    let mut to_pascal = false;
+    for attr in &input.attrs {
+        if let Ok(Meta::Path(path)) = attr.parse_meta() {
+            if path.is_ident("to_pascal") {
+                to_pascal = true;
+            }
+        }
+    }
+
     let mut field_strings: Vec<proc_macro2::TokenStream> = vec![];
 
     for f in data.fields {
         let name = f.ident.clone().unwrap();
-        let mut sql_name = f.ident.as_ref().unwrap().to_string();
+        let mut sql_name = if to_pascal {
+            AsUpperCamelCase(f.ident.as_ref().unwrap().to_string()).to_string()
+        } else {
+            f.ident.as_ref().unwrap().to_string()
+        };
         let option_type = is_option_type(&f.ty);
         let is_string = is_string(&f.ty);
         for attr in &f.attrs {
@@ -72,6 +86,7 @@ fn expand_derive_from_row(input: syn::DeriveInput) -> syn::Result<proc_macro2::T
     }
 
     let gen = quote! {
+        // we put allow dead code in case there aren't any string types
         #[allow(dead_code)]
         fn string(str: Option<&str>) -> Option<String> {
             if let Some(str) = str {
