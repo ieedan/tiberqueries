@@ -1,8 +1,11 @@
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::spanned::Spanned;
-use syn::{parse_macro_input, Lit, Meta, MetaNameValue};
-use syn::{DeriveInput, GenericArgument, PathArguments, Type};
+use syn::{
+    parse_macro_input, AngleBracketedGenericArguments, GenericArgument, Lit, Meta, MetaNameValue,
+    PathArguments, TypePath,
+};
+use syn::{DeriveInput, Type};
 
 #[proc_macro_derive(FromRow, attributes(sql_name))]
 pub fn derive_from_row(input: TokenStream) -> TokenStream {
@@ -17,13 +20,10 @@ fn expand_derive_from_row(input: syn::DeriveInput) -> syn::Result<proc_macro2::T
 
     let data = match input.data {
         syn::Data::Struct(data) => data,
-        syn::Data::Enum(_) => {
-            return Err(syn::Error::new(input.span(), "Enums cannot derive FromRow"))
-        }
-        syn::Data::Union(_) => {
+        _ => {
             return Err(syn::Error::new(
                 input.span(),
-                "Unions cannot derive FromRow",
+                "FromRow can only be derived from Structs",
             ))
         }
     };
@@ -31,9 +31,10 @@ fn expand_derive_from_row(input: syn::DeriveInput) -> syn::Result<proc_macro2::T
     let mut field_strings: Vec<proc_macro2::TokenStream> = vec![];
 
     for f in data.fields {
-        let name = f.ident.clone().unwrap().to_string();
+        let name = f.ident.clone().unwrap();
         let mut sql_name = f.ident.as_ref().unwrap().to_string();
         let option_type = is_option_type(&f.ty);
+        let is_string = is_string(&f.ty);
         for attr in &f.attrs {
             if let Ok(Meta::NameValue(MetaNameValue { path, lit, .. })) = attr.parse_meta() {
                 if path.is_ident("sql_name") {
@@ -44,25 +45,47 @@ fn expand_derive_from_row(input: syn::DeriveInput) -> syn::Result<proc_macro2::T
             }
         }
 
-        if option_type {
-            let gen = quote! {
-                #name: row.get(stringify!(#sql_name)),
-            };
-            field_strings.push(gen.into());
+        // To make it easier to manage objects all the data should be owned
+        // because of this &str must be converted to String
+        let gen = if option_type {
+            if is_string {
+                quote! {
+                    #name: string(row.get(#sql_name)),
+                }
+            } else {
+                quote! {
+                    #name: row.get(#sql_name),
+                }
+            }
         } else {
-            let gen = quote! {
-                #name: row.get(stringify!(#sql_name)).unwrap(),
-            };
-            field_strings.push(gen.into());
-        }
+            if is_string {
+                quote! {
+                    #name: string(row.get(#sql_name)).unwrap(),
+                }
+            } else {
+                quote! {
+                    #name: row.get(#sql_name).unwrap(),
+                }
+            }
+        };
+        field_strings.push(gen.into());
     }
 
     let gen = quote! {
+        #[allow(dead_code)]
+        fn string(str: Option<&str>) -> Option<String> {
+            if let Some(str) = str {
+                Some(String::from(str))
+            } else {
+                None
+            }
+        }
+
         impl FromRow for #name {
-            fn from_row(row: tiberius::Row) -> Result<Self, Box<dyn Error>> {
-                Ok(Self {
+            fn from_row(row: tiberius::Row) -> Self {
+                Self {
                     #(#field_strings)*
-                })
+                }
             }
         }
     };
@@ -71,19 +94,43 @@ fn expand_derive_from_row(input: syn::DeriveInput) -> syn::Result<proc_macro2::T
 }
 
 fn is_option_type(ty: &Type) -> bool {
-    if let Type::Path(type_path) = ty {
-        if type_path.qself.is_none() && type_path.path.segments.len() == 1 {
-            let segment = &type_path.path.segments[0];
-            if segment.ident == "Option" {
-                if let PathArguments::AngleBracketed(angle_bracketed) = &segment.arguments {
-                    if angle_bracketed.args.len() == 1 {
-                        if let GenericArgument::Type(_) = &angle_bracketed.args[0] {
-                            return true;
+    if let Type::Path(TypePath { path, .. }) = ty {
+        path.segments
+            .iter()
+            .any(|segment| segment.ident == "Option")
+    } else {
+        false
+    }
+}
+
+fn is_string(ty: &Type) -> bool {
+    match ty {
+        Type::Path(TypePath { path, .. }) => {
+            if path.segments.len() == 1 {
+                let segment = &path.segments[0];
+                if segment.ident == "String" {
+                    return true;
+                } else if segment.ident == "Option" {
+                    if let PathArguments::AngleBracketed(AngleBracketedGenericArguments {
+                        args,
+                        ..
+                    }) = &segment.arguments
+                    {
+                        if let Some(GenericArgument::Type(Type::Path(TypePath { path, .. }))) =
+                            args.first()
+                        {
+                            return path
+                                .segments
+                                .iter()
+                                .any(|segment| segment.ident == "String");
                         }
                     }
                 }
+                false
+            } else {
+                false
             }
         }
+        _ => false,
     }
-    false
 }
