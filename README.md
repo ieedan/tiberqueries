@@ -11,13 +11,6 @@ Add `FromRow` to the derive attribute above your struct to automatically generat
 Here we use `FromRow` on an User struct and then select all from the Users table using the `qry` client extension.
 
 ```rust
-use std::error::Error;
-use chrono::NaiveDateTime;
-use tiberius::{AuthMethod, Client, Config, Query};
-use tiberqueries::{query::SqlCommands, FromRow};
-use tokio::net::TcpStream;
-use tokio_util::compat::TokioAsyncWriteCompatExt;
-
 #[derive(FromRow, Debug)]
 pub struct User {
     pub id: i64,
