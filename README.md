@@ -102,3 +102,29 @@ impl FromRow for Point {
 
 */
 ```
+
+#### sql_ignore
+Sometimes you need values to be included on your type that aren't mapped to SQL. In this case add `#[sql_ignore="true"]` above the property. You will also need to wrap the type of the property in an `Option<_>` type or you will get an error.
+
+```rust
+#[derive(FromRow)]
+pub struct Point {
+    pub x: i32,
+    #[sql_ignore="true"]
+    pub y: Option<i32>,
+}
+
+/*
+
+impl FromRow for Point {
+    fn from_row(row: tiberius::Row) -> Self {
+        use tiberqueries::string;
+        Self {
+            x: row.get("x").unwrap(),
+            y: None,
+        }
+    }
+}
+
+*/
+```
