@@ -49,6 +49,7 @@ fn expand_derive_from_row(input: syn::DeriveInput) -> syn::Result<proc_macro2::T
         };
         let option_type = is_option_type(&f.ty);
         let is_string = is_string(&f.ty);
+        let mut ignore = false;
         for attr in &f.attrs {
             if let Ok(Meta::NameValue(MetaNameValue { path, lit, .. })) = attr.parse_meta() {
                 if path.is_ident("sql_name") {
@@ -56,15 +57,24 @@ fn expand_derive_from_row(input: syn::DeriveInput) -> syn::Result<proc_macro2::T
                         sql_name = lit_str.value();
                     }
                 } else if path.is_ident("sql_ignore") {
-                    continue;
+                    ignore = true;
                 }
             }
+        }
+
+        if ignore && !option_type {
+            panic!("Ignored values must be wrapped in Option<_>! Try wrapping the type with Option<_>.");
         }
 
         // To make it easier to manage objects all the data should be owned
         // because of this &str must be converted to String
         let gen = if option_type {
-            if is_string {
+            if ignore {
+                // ignored values will always be None
+                quote! {
+                    #name: None
+                }
+            } else if is_string {
                 quote! {
                     #name: string(row.get(#sql_name)),
                 }
