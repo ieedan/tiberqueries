@@ -22,9 +22,9 @@ pub trait SqlCommands {
 
 impl SqlCommands for SqlConnection {
     /// Returns the mapped result of the query as a Vector of the provided generic.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```ignore
     /// let mut qry = Query::new("SELECT * FROM Users");
     ///
@@ -48,9 +48,9 @@ impl SqlCommands for SqlConnection {
     }
 
     /// Returns the first mapped result of the query or None.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```ignore
     /// let mut qry = Query::new("SELECT 1 Users.* FROM Users");
     ///
@@ -70,14 +70,14 @@ impl SqlCommands for SqlConnection {
     }
 
     /// Executes the provided query and returns the result.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```ignore
     /// let mut qry = Query::new("DELETE FROM Users WHERE Id = @P1");
-    /// 
+    ///
     /// qry.bind(10);
-    /// 
+    ///
     /// client.exec(qry).await?;
     /// ```
     async fn exec<'a>(&mut self, qry: Query<'a>) -> Result<ExecuteResult, tiberius::error::Error> {

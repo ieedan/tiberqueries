@@ -8,7 +8,7 @@ use syn::{
 };
 use syn::{DeriveInput, Type};
 
-#[proc_macro_derive(FromRow, attributes(sql_name, to_pascal))]
+#[proc_macro_derive(FromRow, attributes(sql_name, to_pascal, sql_ignore))]
 pub fn derive_from_row(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     expand_derive_from_row(input)
@@ -55,6 +55,8 @@ fn expand_derive_from_row(input: syn::DeriveInput) -> syn::Result<proc_macro2::T
                     if let Lit::Str(lit_str) = lit {
                         sql_name = lit_str.value();
                     }
+                } else if path.is_ident("sql_ignore") {
+                    continue;
                 }
             }
         }

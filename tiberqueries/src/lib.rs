@@ -5,6 +5,7 @@ pub use tiberqueries_derive::FromRow;
 
 #[cfg(feature = "query")]
 pub mod query;
+pub mod mappings;
 
 pub trait FromRow {
     fn from_row(row: Row) -> Self;
