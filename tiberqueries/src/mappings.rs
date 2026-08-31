@@ -1,4 +1,4 @@
-use tiberius::{numeric::Numeric, time::chrono::{NaiveDate, NaiveDateTime, NaiveTime}, Uuid};
+use crate::tiberius::{numeric::Numeric, time::chrono::{NaiveDate, NaiveDateTime, NaiveTime}, Uuid};
 use crate::{string, FromRow};
 
 // FromSql<'a> Trait
@@ -24,79 +24,79 @@ use crate::{string, FromRow};
 // |[`DateTime`] (with feature flag `chrono`)|`datetimeoffset`|
 
 impl FromRow for String {
-    fn from_row(row: tiberius::Row) -> Self {
+    fn from_row(row: crate::tiberius::Row) -> Self {
         string(row.get(0)).unwrap()
     }
 }
 
 impl FromRow for u8 {
-    fn from_row(row: tiberius::Row) -> Self {
+    fn from_row(row: crate::tiberius::Row) -> Self {
         row.get(0).unwrap()
     }
 }
 
 impl FromRow for i16 {
-    fn from_row(row: tiberius::Row) -> Self {
+    fn from_row(row: crate::tiberius::Row) -> Self {
         row.get(0).unwrap()
     }
 }
 
 impl FromRow for i32 {
-    fn from_row(row: tiberius::Row) -> Self {
+    fn from_row(row: crate::tiberius::Row) -> Self {
         row.get(0).unwrap()
     }
 }
 
 impl FromRow for i64 {
-    fn from_row(row: tiberius::Row) -> Self {
+    fn from_row(row: crate::tiberius::Row) -> Self {
         row.get(0).unwrap()
     }
 }
 
 impl FromRow for f32 {
-    fn from_row(row: tiberius::Row) -> Self {
+    fn from_row(row: crate::tiberius::Row) -> Self {
         row.get(0).unwrap()
     }
 }
 
 impl FromRow for f64 {
-    fn from_row(row: tiberius::Row) -> Self {
+    fn from_row(row: crate::tiberius::Row) -> Self {
         row.get(0).unwrap()
     }
 }
 
 impl FromRow for NaiveDateTime {
-    fn from_row(row: tiberius::Row) -> Self {
+    fn from_row(row: crate::tiberius::Row) -> Self {
         row.get(0).unwrap()
     }
 }
 
 impl FromRow for NaiveDate {
-    fn from_row(row: tiberius::Row) -> Self {
+    fn from_row(row: crate::tiberius::Row) -> Self {
         row.get(0).unwrap()
     }
 }
 
 impl FromRow for NaiveTime {
-    fn from_row(row: tiberius::Row) -> Self {
+    fn from_row(row: crate::tiberius::Row) -> Self {
         row.get(0).unwrap()
     }
 }
 
 impl FromRow for Uuid {
-    fn from_row(row: tiberius::Row) -> Self {
+    fn from_row(row: crate::tiberius::Row) -> Self {
         row.get(0).unwrap()
     }
 }
 
 impl FromRow for Numeric {
-    fn from_row(row: tiberius::Row) -> Self {
+    fn from_row(row: crate::tiberius::Row) -> Self {
         row.get(0).unwrap()
     }
 }
 
 impl FromRow for bool {
-    fn from_row(row: tiberius::Row) -> Self {
+    fn from_row(row: crate::tiberius::Row) -> Self {
         row.get(0).unwrap()
     }
 }

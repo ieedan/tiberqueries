@@ -97,10 +97,13 @@ fn expand_derive_from_row(input: syn::DeriveInput) -> syn::Result<proc_macro2::T
         field_strings.push(gen.into());
     }
 
+    // Fully-qualified paths: the generated impl must bind to the driver that
+    // `tiberqueries` was built against (via its `tiberius` re-export), not to
+    // whatever the calling crate happens to have in scope under that name.
     let gen = quote! {
-        impl FromRow for #name {
-            fn from_row(row: tiberius::Row) -> Self {
-                use tiberqueries::string;
+        impl ::tiberqueries::FromRow for #name {
+            fn from_row(row: ::tiberqueries::tiberius::Row) -> Self {
+                use ::tiberqueries::string;
                 Self {
                     #(#field_strings)*
                 }

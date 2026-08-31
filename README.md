@@ -5,6 +5,42 @@ Includes derive functionality as well as a trait implementation for the Client. 
 
 If you are looking for a query builder for SQL Server try [CANYON-SQL](https://github.com/zerodaycode/Canyon-SQL).
 
+## Driver backend
+
+`tiberqueries` builds against a TDS driver of your choosing. Exactly one backend
+feature must be enabled:
+
+| Feature | Crate | Notes |
+|---|---|---|
+| `upstream` | [`tiberius`](https://crates.io/crates/tiberius) | Default. |
+| `ng` | [`tiberius-ng`](https://crates.io/crates/tiberius-ng) | Community fork; opt-in. |
+
+```toml
+# default -- upstream tiberius
+tiberqueries = "0.2"
+
+# opt in to tiberius-ng instead
+tiberqueries = { version = "0.2", default-features = false, features = ["derive", "query", "ng"] }
+```
+
+Whichever backend you select is re-exported as `tiberqueries::tiberius`. Driver
+types such as `Row` and `Query` appear in this crate's public API, so **refer to
+the driver through that re-export** rather than depending on a TDS crate
+directly:
+
+```rust
+use tiberqueries::tiberius::{Client, Query};
+```
+
+If you depend on a TDS crate directly *and* it is not the one `tiberqueries` was
+built against, the two copies are distinct types and will not unify -- you will
+see errors like `` expected `tiberius::row::Row`, found `tiberius::Row` ``. Going
+through `tiberqueries::tiberius` keeps a single source of truth.
+
+Note that Cargo features are additive: if two crates in one dependency graph
+select different backends, both features turn on and the build fails with a
+`compile_error!` naming the conflict.
+
 ## Usage
 Add `FromRow` to the derive attribute above your struct to automatically generate a `from_row` method on the struct. You can manually map the rows from here or use the `query` feature to extend the client with methods that automatically map the result.
 
@@ -58,9 +94,9 @@ pub struct User {
 
 /* Generated implementation
 
-impl FromRow for User {
-    fn from_row(row: tiberius::Row) -> Self {
-        use tiberqueries::string;
+impl ::tiberqueries::FromRow for User {
+    fn from_row(row: ::tiberqueries::tiberius::Row) -> Self {
+        use ::tiberqueries::string;
         Self {
             id: row.get("Id").unwrap(),
             username: string(row.get("Username")).unwrap(),
@@ -90,9 +126,9 @@ pub struct Point {
 
 /*
 
-impl FromRow for Point {
-    fn from_row(row: tiberius::Row) -> Self {
-        use tiberqueries::string;
+impl ::tiberqueries::FromRow for Point {
+    fn from_row(row: ::tiberqueries::tiberius::Row) -> Self {
+        use ::tiberqueries::string;
         Self {
             x: row.get("x").unwrap(),
             y: row.get("why").unwrap(),
@@ -116,9 +152,9 @@ pub struct Point {
 
 /*
 
-impl FromRow for Point {
-    fn from_row(row: tiberius::Row) -> Self {
-        use tiberqueries::string;
+impl ::tiberqueries::FromRow for Point {
+    fn from_row(row: ::tiberqueries::tiberius::Row) -> Self {
+        use ::tiberqueries::string;
         Self {
             x: row.get("x").unwrap(),
             y: None,

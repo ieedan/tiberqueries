@@ -1,4 +1,4 @@
-use tiberius::{Client, ExecuteResult, Query};
+use crate::tiberius::{Client, ExecuteResult, Query};
 use tokio::net::TcpStream;
 use tokio_util::compat::Compat;
 
@@ -10,14 +10,14 @@ pub trait SqlCommands {
     async fn qry<'a, T: FromRow>(
         &mut self,
         qry: Query<'a>,
-    ) -> Result<Vec<T>, tiberius::error::Error>;
+    ) -> Result<Vec<T>, crate::tiberius::error::Error>;
 
     async fn qry_first_or_none<'a, T: FromRow>(
         &mut self,
         qry: Query<'a>,
-    ) -> Result<Option<T>, tiberius::error::Error>;
+    ) -> Result<Option<T>, crate::tiberius::error::Error>;
 
-    async fn exec<'a>(&mut self, qry: Query<'a>) -> Result<ExecuteResult, tiberius::error::Error>;
+    async fn exec<'a>(&mut self, qry: Query<'a>) -> Result<ExecuteResult, crate::tiberius::error::Error>;
 }
 
 impl SqlCommands for SqlConnection {
@@ -33,7 +33,7 @@ impl SqlCommands for SqlConnection {
     async fn qry<'a, T: FromRow>(
         &mut self,
         qry: Query<'a>,
-    ) -> Result<Vec<T>, tiberius::error::Error> {
+    ) -> Result<Vec<T>, crate::tiberius::error::Error> {
         let res = qry.query(self).await?;
 
         let mut items: Vec<T> = vec![];
@@ -59,7 +59,7 @@ impl SqlCommands for SqlConnection {
     async fn qry_first_or_none<'a, T: FromRow>(
         &mut self,
         qry: Query<'a>,
-    ) -> Result<Option<T>, tiberius::error::Error> {
+    ) -> Result<Option<T>, crate::tiberius::error::Error> {
         let res = qry.query(self).await?;
 
         if let Some(row) = res.into_row().await? {
@@ -80,7 +80,7 @@ impl SqlCommands for SqlConnection {
     ///
     /// client.exec(qry).await?;
     /// ```
-    async fn exec<'a>(&mut self, qry: Query<'a>) -> Result<ExecuteResult, tiberius::error::Error> {
+    async fn exec<'a>(&mut self, qry: Query<'a>) -> Result<ExecuteResult, crate::tiberius::error::Error> {
         Ok(qry.execute(self).await?)
     }
 }
