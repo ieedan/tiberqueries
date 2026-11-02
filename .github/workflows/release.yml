@@ -40,10 +40,9 @@ jobs:
 
       - uses: changesets/action@v2
         with:
-          version: pnpm run version
-          publish: pnpm run release
-          title: "chore: version packages"
-          commit: "chore: version packages"
+          version-script: pnpm run version
+          publish-script: pnpm run release
+          pr-title: "chore: version packages"
+          commit-message: "chore: version packages"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
