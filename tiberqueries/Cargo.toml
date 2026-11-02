@@ -16,7 +16,7 @@ repository = "https://github.com/ieedan/tiberqueries"
 tiberius = { version = ">=0.12.2, <0.14", features = ["chrono"] }
 tokio = { version = "^1.37.0", features = ["full"], optional = true }
 tokio-util = { version = "0.7.10", features = ["compat"], optional = true }
-tiberqueries_derive = { version = "0.1.3", optional = true }
+tiberqueries_derive = { version = "0.1.3", path = "../tiberqueries_derive", optional = true }
 
 [features]
 default = ["derive", "query"]

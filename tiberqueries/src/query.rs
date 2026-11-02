@@ -6,6 +6,7 @@ use crate::FromRow;
 
 pub type SqlConnection = Client<Compat<TcpStream>>;
 
+#[allow(async_fn_in_trait)]
 pub trait SqlCommands {
     async fn qry<'a, T: FromRow>(
         &mut self,
@@ -81,6 +82,6 @@ impl SqlCommands for SqlConnection {
     /// client.exec(qry).await?;
     /// ```
     async fn exec<'a>(&mut self, qry: Query<'a>) -> Result<ExecuteResult, tiberius::error::Error> {
-        Ok(qry.execute(self).await?)
+        qry.execute(self).await
     }
 }

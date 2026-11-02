@@ -1,5 +1,9 @@
-use tiberius::{numeric::Numeric, time::chrono::{NaiveDate, NaiveDateTime, NaiveTime}, Uuid};
 use crate::{string, FromRow};
+use tiberius::{
+    numeric::Numeric,
+    time::chrono::{NaiveDate, NaiveDateTime, NaiveTime},
+    Uuid,
+};
 
 // FromSql<'a> Trait
 //

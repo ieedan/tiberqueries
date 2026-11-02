@@ -83,18 +83,16 @@ fn expand_derive_from_row(input: syn::DeriveInput) -> syn::Result<proc_macro2::T
                     #name: row.get(#sql_name),
                 }
             }
+        } else if is_string {
+            quote! {
+                #name: string(row.get(#sql_name)).unwrap(),
+            }
         } else {
-            if is_string {
-                quote! {
-                    #name: string(row.get(#sql_name)).unwrap(),
-                }
-            } else {
-                quote! {
-                    #name: row.get(#sql_name).unwrap(),
-                }
+            quote! {
+                #name: row.get(#sql_name).unwrap(),
             }
         };
-        field_strings.push(gen.into());
+        field_strings.push(gen);
     }
 
     let gen = quote! {
@@ -108,7 +106,7 @@ fn expand_derive_from_row(input: syn::DeriveInput) -> syn::Result<proc_macro2::T
         }
     };
 
-    Ok(gen.into())
+    Ok(gen)
 }
 
 fn is_option_type(ty: &Type) -> bool {
@@ -123,31 +121,29 @@ fn is_option_type(ty: &Type) -> bool {
 
 fn is_string(ty: &Type) -> bool {
     match ty {
-        Type::Path(TypePath { path, .. }) => {
-            if path.segments.len() == 1 {
-                let segment = &path.segments[0];
-                if segment.ident == "String" {
-                    return true;
-                } else if segment.ident == "Option" {
-                    if let PathArguments::AngleBracketed(AngleBracketedGenericArguments {
-                        args,
-                        ..
-                    }) = &segment.arguments
-                    {
-                        if let Some(GenericArgument::Type(Type::Path(TypePath { path, .. }))) =
-                            args.first()
-                        {
-                            return path
-                                .segments
-                                .iter()
-                                .any(|segment| segment.ident == "String");
-                        }
-                    }
-                }
-                false
-            } else {
-                false
+        Type::Path(TypePath { path, .. }) if path.segments.len() == 1 => {
+            let segment = &path.segments[0];
+            if segment.ident == "String" {
+                return true;
             }
+
+            if segment.ident != "Option" {
+                return false;
+            }
+
+            if let PathArguments::AngleBracketed(AngleBracketedGenericArguments { args, .. }) =
+                &segment.arguments
+            {
+                if let Some(GenericArgument::Type(Type::Path(TypePath { path, .. }))) = args.first()
+                {
+                    return path
+                        .segments
+                        .iter()
+                        .any(|segment| segment.ident == "String");
+                }
+            }
+
+            false
         }
         _ => false,
     }

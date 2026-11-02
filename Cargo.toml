@@ -1,0 +1,3 @@
+[workspace]
+members = ["tiberqueries", "tiberqueries_derive"]
+resolver = "2"
