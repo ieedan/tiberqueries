@@ -83,18 +83,16 @@ fn expand_derive_from_row(input: syn::DeriveInput) -> syn::Result<proc_macro2::T
                     #name: row.get(#sql_name),
                 }
             }
+        } else if is_string {
+            quote! {
+                #name: string(row.get(#sql_name)).unwrap(),
+            }
         } else {
-            if is_string {
-                quote! {
-                    #name: string(row.get(#sql_name)).unwrap(),
-                }
-            } else {
-                quote! {
-                    #name: row.get(#sql_name).unwrap(),
-                }
+            quote! {
+                #name: row.get(#sql_name).unwrap(),
             }
         };
-        field_strings.push(gen.into());
+        field_strings.push(gen);
     }
 
     let gen = quote! {
@@ -108,7 +106,7 @@ fn expand_derive_from_row(input: syn::DeriveInput) -> syn::Result<proc_macro2::T
         }
     };
 
-    Ok(gen.into())
+    Ok(gen)
 }
 
 fn is_option_type(ty: &Type) -> bool {

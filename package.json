@@ -1,0 +1,13 @@
+{
+  "name": "tiberqueries-workspace",
+  "private": true,
+  "packageManager": "pnpm@12.16.1",
+  "scripts": {
+    "changeset": "changeset",
+    "version": "changeset version && node scripts/sync-versions.mjs",
+    "release": "node scripts/publish.mjs"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^3.0.3"
+  }
+}
